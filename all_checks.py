@@ -1,8 +1,12 @@
-#!/usr/binenv python3
+#!/usr/bin/env python3
 
 import os
 import shutil
 import sys
+
+def check_reboot():
+    """Returs True if the compuere has a pending reboot, False otherwise."""
+    return os.path.exists("/run/reboot-required")
 
 def check_disk_full(disk, min_gb, min_percent):
     """Returns True if there isn't enough disk space, False otherwise."""
@@ -15,14 +19,17 @@ def check_disk_full(disk, min_gb, min_percent):
         return True
     return False
 
+def check_root_full():
+    """Returns True if the root partition is full, False otherwise. """
+    return check_disk_full( disk="/", min_gb=2, min_percent=10)
+
 def main(): 
     if check_reboot():
         print("Pending Reboot.")
         sys_exit(1)
-    if check_disk_full(disk="/", min_gb=2, min_percent=10):
-        print("Disk full.")
-        sys.exit(1)
-    
+    if check_root_full():
+        print("Root partition full.")
+        sys.exit( 1 )
     print("Everything ok")
     sys.exit(0)
 
